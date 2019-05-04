@@ -1,6 +1,2 @@
 # myjpeg
-A Project of Data Compression for Algorithm Design and Analysis
-Course  : 算分设计与分析
-Year    : 2018
-Group   : 数据压缩
-Subgroup: 有损压缩
+算分设计与分析，2018，数据压缩组，图片有损压缩分组，基于Java的位图有损压缩实现
