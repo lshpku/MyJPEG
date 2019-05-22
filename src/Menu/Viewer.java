@@ -1,34 +1,20 @@
 package Menu;
 
-import java.awt.Color;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import javax.swing.*;
+import java.io.*;
+import javax.imageio.*;
 
+/**
+ * Viewer - Viewer and converter for Wu4 file.
+ */
 public class Viewer extends JFrame {
 
-    private JFrame frame; // çª—ä½“
-    private JButton btnOpen, btnSaveBmp, btnSaveWu4; // æ–‡ä»¶æ“ä½œæŒ‰é’®
-    private FileDialog openDia, saveDia; // æ–‡ä»¶æ“ä½œå¯¹è¯æ¡†
-    private File file; // å½“å‰æ‰“å¼€æ–‡ä»¶
+    private JButton btnOpen, btnSaveBmp, btnSaveWu4; // ÎÄ¼ş²Ù×÷°´Å¥
+    private FileDialog openDia, saveDia; // ÎÄ¼ş²Ù×÷¶Ô»°¿ò
+    private File file; // µ±Ç°´ò¿ªÎÄ¼ş
     private BufferedImage image;
     private final int buttonX = 24, buttonY = 24;
 
@@ -37,20 +23,24 @@ public class Viewer extends JFrame {
         init();
     }
 
-    /* å›¾å½¢ç”¨æˆ·ç•Œé¢ç»„ä»¶åˆå§‹åŒ– */
+    public static void main(String[] args) {
+        new Viewer();
+    }
+
+    /* Í¼ĞÎÓÃ»§½çÃæ×é¼ş³õÊ¼»¯ */
     public void init() {
 
-        /* è®¾ç½®çª—ä½“å¸ƒå±€ */
+        /* ÉèÖÃ´°Ìå²¼¾Ö */
         setLayout(null);
         setBounds(300, 100, 960, 640);
         getContentPane().setBackground(Color.white);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        /* æ·»åŠ æ–‡ä»¶æ“ä½œå¯¹è¯æ¡† */
-        openDia = new FileDialog(this, "æ‰“å¼€", FileDialog.LOAD);
-        saveDia = new FileDialog(this, "ä¿å­˜", FileDialog.SAVE);
+        /* Ìí¼ÓÎÄ¼ş²Ù×÷¶Ô»°¿ò */
+        openDia = new FileDialog(this, "´ò¿ª", FileDialog.LOAD);
+        saveDia = new FileDialog(this, "±£´æ", FileDialog.SAVE);
 
-        /* æ·»åŠ æ–‡ä»¶æ“ä½œæŒ‰é’® */
+        /* Ìí¼ÓÎÄ¼ş²Ù×÷°´Å¥ */
         btnOpen = new JButton(new ImageIcon("src\\Image\\OpenFile.png"));
         btnOpen.setBounds(buttonX, buttonY, 272, 48);
         btnOpen.addActionListener(new FileOpener());
@@ -64,11 +54,7 @@ public class Viewer extends JFrame {
         btnSaveWu4.addActionListener(new FileSaver());
         add(btnSaveWu4);
 
-        setVisible(true);// è®¾ç½®çª—ä½“å¯è§
-    }
-
-    public static void main(String[] args) {
-        new Viewer();
+        setVisible(true);// ÉèÖÃ´°Ìå¿É¼û
     }
 
     public void paint(Graphics g) {
@@ -76,7 +62,7 @@ public class Viewer extends JFrame {
         if (image == null)
             return;
 
-        /* ç»˜åˆ¶å›¾ç‰‡ç¼©ç•¥å›¾ */
+        /* »æÖÆÍ¼Æ¬ËõÂÔÍ¼ */
         int width = image.getWidth(), height = image.getHeight();
         float zoom = Math.min((float) width / 400, (float) height / 300);
         width = (int) (width / zoom);
@@ -84,8 +70,8 @@ public class Viewer extends JFrame {
         g.drawImage(image, 630 - width / 2, 350 - height / 2,
                 width, height, this);
 
-        /* è¾“å‡ºå›¾ç‰‡ä¿¡æ¯ */
-        g.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 24));
+        /* Êä³öÍ¼Æ¬ĞÅÏ¢ */
+        g.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 24));
         g.drawString("width: " + width, buttonX + 32, buttonY + 400);
         g.drawString("height: " + height, buttonX + 32, buttonY + 432);
     }
@@ -93,16 +79,16 @@ public class Viewer extends JFrame {
     private class FileOpener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            openDia.setVisible(true);//æ˜¾ç¤ºæ‰“å¼€æ–‡ä»¶å¯¹è¯æ¡†
+            openDia.setVisible(true);//ÏÔÊ¾´ò¿ªÎÄ¼ş¶Ô»°¿ò
 
-            String dirpath = openDia.getDirectory(); //è·å–æ‰“å¼€æ–‡ä»¶è·¯å¾„
-            String fileName = openDia.getFile(); //è·å–æ‰“å¼€æ–‡ä»¶åç§°
-            if (dirpath == null || fileName == null) // è‹¥è·å–å¤±è´¥åˆ™è¿”å›
+            String dirpath = openDia.getDirectory(); //»ñÈ¡´ò¿ªÎÄ¼şÂ·¾¶
+            String fileName = openDia.getFile(); //»ñÈ¡´ò¿ªÎÄ¼şÃû³Æ
+            if (dirpath == null || fileName == null) // Èô»ñÈ¡Ê§°ÜÔò·µ»Ø
                 return;
 
-            file = new File(dirpath, fileName); // æ‰“å¼€æ–‡ä»¶
+            file = new File(dirpath, fileName); // ´ò¿ªÎÄ¼ş
 
-            try { // å°è¯•è¯»æ–‡ä»¶
+            try { // ³¢ÊÔ¶ÁÎÄ¼ş
                 if (fileName.endsWith(".wu4"))
                     image = null;
                 else
@@ -121,19 +107,19 @@ public class Viewer extends JFrame {
 
         public void actionPerformed(ActionEvent e) {
             if (file == null) {
-                saveDia.setVisible(true); //æ˜¾ç¤ºä¿å­˜æ–‡ä»¶å¯¹è¯æ¡†
-                String dirpath = saveDia.getDirectory(); //è·å–ä¿å­˜æ–‡ä»¶è·¯å¾„
-                String fileName = saveDia.getFile(); //è·å–ä¿å­˜æ–‡ä»¶åç§°
-                if (dirpath == null || fileName == null) // è‹¥è·å–å¤±è´¥åˆ™è¿”å›
+                saveDia.setVisible(true); //ÏÔÊ¾±£´æÎÄ¼ş¶Ô»°¿ò
+                String dirpath = saveDia.getDirectory(); //»ñÈ¡±£´æÎÄ¼şÂ·¾¶
+                String fileName = saveDia.getFile(); //»ñÈ¡±£´æÎÄ¼şÃû³Æ
+                if (dirpath == null || fileName == null) // Èô»ñÈ¡Ê§°ÜÔò·µ»Ø
                     return;
                 else
-                    file = new File(dirpath, fileName); // æ–°å»ºä¸€ä¸ªæ–‡ä»¶
+                    file = new File(dirpath, fileName); // ĞÂ½¨Ò»¸öÎÄ¼ş
             }
-            try { // å°è¯•å†™å…¥æ–‡ä»¶
+            try { // ³¢ÊÔĞ´ÈëÎÄ¼ş
                 BufferedWriter bufw = new BufferedWriter(new FileWriter(file));
                 String text = "I love wu4";
-                bufw.write(text); //å°†è·å–æ–‡æœ¬å†…å®¹å†™å…¥åˆ°å­—ç¬¦è¾“å‡ºæµ
-                bufw.close(); //å…³é—­æ–‡ä»¶
+                bufw.write(text); //½«»ñÈ¡ÎÄ±¾ÄÚÈİĞ´Èëµ½×Ö·ûÊä³öÁ÷
+                bufw.close(); //¹Ø±ÕÎÄ¼ş
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

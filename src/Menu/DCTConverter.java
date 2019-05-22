@@ -8,29 +8,26 @@ public class DCTConverter {
     private static final double PI = Math.PI;
     private static final double SQRT_2_HALF = Math.sqrt(2) / 2;
 
-    public static int[][] toDCT(int[][] org) { // DCT coding
-        int dct[][] = new int[8][8];
+    public static void toDCT(int[][] src, int[][] dst) { // DCT coding
         for (int u = 0; u < 8; u++) {
             for (int v = 0; v < 8; v++) {
                 double sum = 0;
                 for (int x = 0; x < 8; x++)
                     for (int y = 0; y < 8; y++)
-                        sum += (org[x][y] - 128)
+                        sum += (src[x][y] - 128)
                                 * Math.cos((2 * x + 1) * u * PI / 16)
                                 * Math.cos((2 * y + 1) * v * PI / 16);
-                dct[u][v] = getClosestInt(
+                dst[u][v] = getClosestInt(
                         sum * C(u) * C(v) / 4 / quantiFactor(u, v));
             }
         }
-        return dct;
     }
 
-    public static int[][] reDCT(int[][] dct) { // DCT decoding
+    public static void reDCT(int[][] src, int[][] dst) { // DCT decoding
         double reDct[][] = new double[8][8];
-        int reOrg[][] = new int[8][8];
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                reDct[i][j] = dct[i][j] * quantiFactor(i, j);
+                reDct[i][j] = src[i][j] * quantiFactor(i, j);
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 double sum = 0;
@@ -39,10 +36,9 @@ public class DCTConverter {
                         sum += C(u) * C(v) * reDct[u][v]
                                 * Math.cos((2 * x + 1) * u * PI / 16)
                                 * Math.cos((2 * y + 1) * v * PI / 16);
-                reOrg[x][y] = limitInByte(getClosestInt((sum / 4) + 128));
+                dst[x][y] = limitInByte(getClosestInt((sum / 4) + 128));
             }
         }
-        return reOrg;
     }
 
     private static double C(int c) {
@@ -83,7 +79,9 @@ public class DCTConverter {
         5, 5, 5, 5, 5, 5, 5, 5
     };
     private static int quantiFactor(int i, int j) {
-        //return KERNEL_HALF_QUANTI[i * 8 + j];
-        return KERNEL_SUPERFINE[i * 8 + j];
+        int kernel[] = new int[]{1, 4, 8, 16, 32, 64, 99, 99};
+        return KERNEL_HALF_QUANTI[i * 8 + j];
+        //return KERNEL_SUPERFINE[i * 8 + j];
+        //return kernel[Math.max(i, j)];
     }
 }

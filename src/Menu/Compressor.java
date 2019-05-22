@@ -1,49 +1,41 @@
 package Menu;
 
 /**
- *
- * @author Cocity
+ * Compressor - Doing RLE coding and decoding.
  */
 public class Compressor {
 
-    public static int[] toArray(int[][] matrix) { // zigzag transpose
-        int array[] = new int[64];
-        int arrayIdx = 0;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j <= i; j++)
-                array[arrayIdx++] = matrix[i - j][j];
-            i++;
-            for (int j = 0; j <= i; j++)
-                array[arrayIdx++] = matrix[j][i - j];
-        }
-        for (int i = 1; i < 8; i++) {
-            for (int j = 0; j < 8 - i; j++)
-                array[arrayIdx++] = matrix[7 - j][i + j];
-            i++;
-            for (int j = 0; j < 8 - i; j++)
-                array[arrayIdx++] = matrix[i + j][7 - j];
-        }
-        return array;
+    private static final int[][] ZIGZAG_ORDER = new int[][]{
+        {0, 1, 5, 6, 14, 15, 27, 28},
+        {2, 4, 7, 13, 16, 26, 29, 42},
+        {3, 8, 12, 17, 25, 30, 41, 43},
+        {9, 11, 18, 24, 31, 40, 44, 53},
+        {10, 19, 23, 32, 39, 45, 52, 54},
+        {20, 22, 33, 38, 46, 51, 55, 60},
+        {21, 34, 37, 47, 50, 56, 59, 61},
+        {35, 36, 48, 49, 57, 58, 62, 63}
+    };
+    private static final int[][] FANOUT_ORDER = new int[][]{
+        {0, 1, 4, 8, 13, 19, 26, 34,},
+        {2, 3, 6, 11, 17, 24, 32, 41,},
+        {5, 7, 10, 15, 22, 30, 39, 47,},
+        {9, 12, 16, 21, 28, 37, 45, 52,},
+        {14, 18, 23, 29, 36, 43, 50, 56,},
+        {20, 25, 31, 38, 44, 49, 54, 59,},
+        {27, 33, 40, 46, 51, 55, 58, 61,},
+        {35, 42, 48, 53, 57, 60, 62, 63,}
+    };
+
+    public static void toArray(int[][] srcMat, int[] dstArr) {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                dstArr[FANOUT_ORDER[i][j]] = srcMat[i][j];
     }
 
-    public static int[][] toMatrix(int[] array) { // zigzag transpose
-        int matrix[][] = new int[8][8];
-        int arrayIdx = 0;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j <= i; j++)
-                matrix[i - j][j] = array[arrayIdx++];
-            i++;
-            for (int j = 0; j <= i; j++)
-                matrix[j][i - j] = array[arrayIdx++];
-        }
-        for (int i = 1; i < 8; i++) {
-            for (int j = 0; j < 8 - i; j++)
-                matrix[7 - j][i + j] = array[arrayIdx++];
-            i++;
-            for (int j = 0; j < 8 - i; j++)
-                matrix[i + j][7 - j] = array[arrayIdx++];
-        }
-        return matrix;
+    public static void toMatrix(int[] srcArr, int[][] dstMat) {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                dstMat[i][j] = srcArr[FANOUT_ORDER[i][j]];
     }
 
     public static int toRLE(int[] src, byte[] dest, int startAtBits) {
@@ -155,7 +147,7 @@ public class Compressor {
         return src;
     }
 
-    public static int getBitWidth(int a) {
+    private static int getBitWidth(int a) {
         if (a < 0)
             a = -a - 1;
         if (a == 0)
